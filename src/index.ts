@@ -13,6 +13,17 @@ if (externalUrl) {
   outside on ${externalUrl}`);
   })
 }
+const config = {
+  baseURL: externalUrl || `https://localhost:${port}`,
+}
+/*else {
+  https.createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert')
+  }, app)
+  .listen(port, function () {
+  console.log(`Server running at https://localhost:${port}/`);
+  })*/
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from TypeScript!');
 });
