@@ -9,9 +9,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   port: Number(process.env.DB_PORT),
-  ssl: {
-    rejectUnauthorized: false, // važno je postaviti na false kod povezivanja s nekim cloud bazama
-  }
+  ssl: true
 });
 
 export default pool;

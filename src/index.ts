@@ -3,16 +3,19 @@ import pool from './database';
 
 
 const app = express();
-const port = 3000;
 
+const externalUrl = process.env.RENDER_EXTERNAL_URL;
+const port = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 4080;
+if (externalUrl) {
+  const hostname = '0.0.0.0'; //ne 127.0.0.1
+  app.listen(port, hostname, () => {
+  console.log(`Server locally running at http://${hostname}:${port}/ and from
+  outside on ${externalUrl}`);
+  })
+}
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from TypeScript!');
 });
-
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
-
 
 const testConnection = async () => {
   try {
