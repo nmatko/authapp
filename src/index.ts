@@ -88,9 +88,8 @@ app.get('/generate-ticket', (req, res) => {
 });
 
 // Ruta za prikaz forme za unos podataka nakon autentifikacije
-app.get('/ticket-form',requiresAuth(), (req, res) => {
+app.get('/ticket-form', requiresAuth(), (req, res) => {
   
-
   res.render('ticket-form');
 });
 app.post('/submit-ticket', requiresAuth(), async (req: Request, res: Response): Promise<any> => {
@@ -110,19 +109,19 @@ app.post('/submit-ticket', requiresAuth(), async (req: Request, res: Response): 
     const ticketId = await createTicket(vatin.toString(), firstName, lastName, user.nickname);
     console.log(ticketId)
     console.log(`Base URL: ${config.baseURL}`);
-    // Generiraj QR kod s URL-om koji sadrži samo UUID ulaznice
+
     const ticketUrl =config.baseURL + "/ticket/" + ticketId;
     console.log(ticketUrl)
     const qrCode = await QRCode.toDataURL(ticketUrl);
-    // Prikaz uspjeha s QR kodom
+
     res.render('ticket-success', { qrCode, ticketUrl });
   } catch (error) {
     res.status(500).send('Failed to generate ticket');
   }
 });
-app.get('/ticket/:id', async (req: Request, res: Response):Promise<any> => {
+app.get('/ticket/:id', requiresAuth(), async (req: Request, res: Response):Promise<any> => {
   const { id } = req.params;
-
+  const user = req.oidc.user;
   try {
     console.log('Ticket ID:', id);  // Ispis za praćenje
 
@@ -135,6 +134,9 @@ app.get('/ticket/:id', async (req: Request, res: Response):Promise<any> => {
     }
 
     const ticket = result.rows[0];
+    if (user && ticket.username !== user.nickname) {
+      return res.status(403).send('You do not have access to this ticket');
+    }
     res.render('ticket-details', { ticket });
   } catch (error) {
     console.error('Error fetching ticket:', error);
