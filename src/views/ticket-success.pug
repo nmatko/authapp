@@ -1,0 +1,10 @@
+doctype html
+html
+  head
+    title Ticket Generated
+    a(href="/logout" class="logout-button") Logout
+  body
+    h1 Ticket generated successfully
+    img(src=qrCode, alt="QR Code")
+    p Scan the QR code or visit the link:
+    a(href=ticketUrl, target="_blank") View your ticket

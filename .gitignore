@@ -6,3 +6,5 @@ node_modules/
 
 # Build files
 dist/
+ssl/server.cert
+ssl/server.key

@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Generate Ticket
+    a(href="/logout" class="logout-button") Logout
+  body
+    h1 Enter your ticket details
+    form(action="/submit-ticket", method="POST")
+      input(type="number", name="vatin" placeholder="Enter VATIN - 11 digits" required pattern="\d{11}")
+      input(type="text", name="firstName" placeholder="Enter First Name" required)
+      input(type="text", name="lastName" placeholder="Enter Last Name" required)
+      button Submit

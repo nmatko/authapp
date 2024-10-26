@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Ticket System
+    if isAuthenticated
+      a(href="/logout" class="logout-button") Logout
+  body
+    h1 Welcome to the Ticket System
+    p Total tickets generated: #{totalTickets}
+    form(action="/generate-ticket", method="GET")
+      button Generate Ticket
+    
