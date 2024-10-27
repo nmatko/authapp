@@ -4,8 +4,7 @@ import path from 'path';
 import https from 'https';
 import fs from 'fs';
 import dotenv from 'dotenv';
-import axios , {AxiosError} from 'axios';
-import { getTicketCount, createTicket } from './database';
+import { getTicketCount, createTicket, getTicketCountByVatin} from './database';
 import { auth, requiresAuth } from 'express-openid-connect';
 import QRCode from 'qrcode';
 dotenv.config();
@@ -96,6 +95,7 @@ app.post('/submit-ticket', requiresAuth(), async (req: Request, res: Response): 
   console.log(req.body);
   const { vatin, firstName, lastName } = req.body;
   const user = req.oidc.user;
+
   if (!/^\d{11}$/.test(vatin)) {
     return res.status(400).send('VATIN must be exactly 11 digits.');
   }
@@ -103,9 +103,13 @@ app.post('/submit-ticket', requiresAuth(), async (req: Request, res: Response): 
     res.status(401).send('User not authenticated');
     return
   }
-  
+  if(!vatin || !firstName || !lastName || !user.nickname){
+    res.status(400).send('One of the necessary properties not set');
+  }
   try {
     // Kreiraj ulaznicu koristeći podatke iz forme
+    const ticketCountVatin = await getTicketCountByVatin(vatin)
+    if(ticketCountVatin < 3){
     const ticketId = await createTicket(vatin.toString(), firstName, lastName, user.nickname);
     console.log(ticketId)
     console.log(`Base URL: ${config.baseURL}`);
@@ -115,8 +119,12 @@ app.post('/submit-ticket', requiresAuth(), async (req: Request, res: Response): 
     const qrCode = await QRCode.toDataURL(ticketUrl);
 
     res.render('ticket-success', { qrCode, ticketUrl });
-  } catch (error) {
-    res.status(500).send('Failed to generate ticket');
+  }else {
+    res.status(400).send('Maximum number of tickets claimed for the entered vatin (3)');
+  }
+  } catch (error ) {
+    console.log((error as any).code)
+    res.status(400).send('Failed to generate ticket');
   }
 });
 app.get('/ticket/:id', requiresAuth(), async (req: Request, res: Response):Promise<any> => {

@@ -9,7 +9,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   port: Number(process.env.DB_PORT),
-  ssl: { rejectUnauthorized: false } 
+  ssl: true
 });
 
 // Funkcija za dohvaćanje svih događaja
@@ -43,7 +43,7 @@ export const getTicketCount = async (): Promise<number> => {
     throw new Error('Failed to create ticket');
   }
 };*/
-export const createTicket = async (vatin: string, firstName: string, lastName: string, username: string): Promise<string> => {
+export const createTicket = async (vatin: string, firstName: string, lastName: string, username: string): Promise<any> => {
   try {
     // Ovdje se koriste direktno unesene vrijednosti umjesto placeholdera
     const query = `
@@ -58,10 +58,22 @@ export const createTicket = async (vatin: string, firstName: string, lastName: s
     return result.rows[0].id;
   } catch (error) {
     console.error('Error in createTicket:', error);
-    throw new Error('Failed to create ticket');
+
   }
 };
+export const getTicketCountByVatin = async (vatin: string): Promise<number> => {
+  try {
+    const query = `SELECT COUNT(*) FROM tickets WHERE vatin = '${vatin}'`;
+    const result = await pool.query(query, [vatin]);
 
+    // Broj ticketa se nalazi u prvom retku rezultata, prvi stupac
+    const count = parseInt(result.rows[0].count, 10);
+    return count;
+  } catch (error) {
+    console.error('Error fetching ticket count by VATIN:', error);
+    throw new Error('Failed to retrieve ticket count');
+  }
+};
 
 
 export default pool;
